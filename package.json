@@ -25,6 +25,9 @@
     "react": "^15.0.0",
     "react-dom": "^15.0.0"
   },
+  "browserify": {
+    "transform": ["babelify"]
+  },
   "scripts": {
     "example": "webpack && node example/server.js",
     "test" : "echo 'no tests specified.'"
