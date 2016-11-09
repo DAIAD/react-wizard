@@ -89,13 +89,16 @@ const createWizard = (WizardItemWrapper=null) => {
     _getActiveWizardItem() {
       return this.wizardItems.find(item => item.props.id === this.state.active);
     }
+    
+    _getWizardItem(id) {
+      return this.wizardItems.find(item => item.props.id === id);
+    }
 
     _isActive(id) {
-      return this.state.active === id;
-      // || (
-      //    this.state.active === 'complete' && 
-      //      this.state.previous.find((x, i, arr) => i === arr.length-1) === id
-      //  );
+      return this.state.active === id || (
+          this.state.active === 'complete' && 
+            this.state.previous.find((x, i, arr) => i === arr.length-1) === id
+        );
     }
     
     _getIdx(id) {
@@ -145,42 +148,52 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     //handle event functions
-    _onComplete() {
-      const active = this._getActiveWizardItem();
-      const { id, next, validate } = active.props;
+    
+    _validate(id) {
+      const item = this._getWizardItem(id);
+      const { validate } = item.props;
       const value = this.state.values[id];
-
+      
       try {
-        validate(value);
-
-        const cleared = this._getClearedValues([id]);
-        this.onComplete(cleared);
-         this._setValidationClear(id);
+         validate(value);
+         return Promise.resolve(value); 
       }
       catch(err) {
-        this._setValidationFail(id, err);
+        return Promise.reject(err);
       }
+    }
+
+    _onComplete() {
+      const cleared = this._getClearedValues();
+      this.onComplete(cleared);
     } 
     
     _onNextClicked() {
       const active = this._getActiveWizardItem();
       const { id, next, validate } = active.props;
       const value = this.state.values[id];
-       try {
-         validate(value);
-         
-         this._setActiveById(next(value));
-         this._pushPrevious(id);
-         this._setValidationClear(id);
-      }
-      catch(err) {
+      
+      return this._validate(id)
+      .then((value) => { 
+        
+        this._setActiveById(next(value));
+        this._pushPrevious(id);
+        this._setValidationClear(id);
+
+        return value;
+      }, 
+      (err) => { 
         this._setValidationFail(id, err);
-      }
+        throw err;
+      });
     }
 
     _onPreviousClicked() {
       const previous = this._popPrevious();
+      if (!previous) return Promise.reject();
+
       this._setActiveById(previous);
+      return Promise.resolve();
     }
   
     render() {
