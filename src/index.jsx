@@ -27,6 +27,8 @@ const createWizard = (WizardItemWrapper=null) => {
       super(props);
       
       const { children } = props;
+      if (!children) throw `No wizard items specified. Check Wizard`;
+
       this.wizardItems = React.Children.toArray(React.Children.map(children, ((Child, idx) => {
         if (!Child.props.id) { 
           throw `Each wizard child must have an id property. `+
@@ -246,7 +248,10 @@ const createWizard = (WizardItemWrapper=null) => {
   
   Wizard.propTypes = {
     onComplete: React.PropTypes.func,
-    children: React.PropTypes.arrayOf(React.PropTypes.element).isRequired
+    children: React.PropTypes.oneOfType([
+      React.PropTypes.arrayOf(React.PropTypes.element), 
+      React.PropTypes.object
+    ]).isRequired
   };
 
   return Wizard;
