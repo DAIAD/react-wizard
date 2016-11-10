@@ -60,6 +60,7 @@ const createWizard = (WizardItemWrapper=null) => {
         active: this.wizardItems[0].props.id,
         previous: [],
         values: this._getInitialValues(),
+        completed: false,
         errors: {}
       };
     }
@@ -95,10 +96,7 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _isActive(id) {
-      return this.state.active === id || (
-          this.state.active === 'complete' && 
-            this.state.previous.find((x, i, arr) => i === arr.length-1) === id
-        );
+      return this.state.active === id;
     }
     
     _getIdx(id) {
@@ -114,6 +112,14 @@ const createWizard = (WizardItemWrapper=null) => {
       this.setState(this._getInitialState());
     }
     
+    _setCompleted() {
+      this.setState({ completed: true });
+    }
+
+    _resetCompleted() {
+      this.setState({ completed: false });
+    }
+
     _setValidationFail(id, error) {
       const newErrors = {...this.state.errors};
       newErrors[id] = error;
@@ -148,7 +154,6 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     //handle event functions
-    
     _validate(id) {
       const item = this._getWizardItem(id);
       const { validate } = item.props;
@@ -166,6 +171,7 @@ const createWizard = (WizardItemWrapper=null) => {
     _onComplete() {
       const cleared = this._getClearedValues();
       this.onComplete(cleared);
+      this._setCompleted();
     } 
     
     _onNextClicked() {
@@ -175,8 +181,10 @@ const createWizard = (WizardItemWrapper=null) => {
       
       return this._validate(id)
       .then((value) => { 
-        
-        this._setActiveById(next(value));
+
+        if (next(value) !== 'complete'){
+          this._setActiveById(next(value));
+        }
         this._pushPrevious(id);
         this._setValidationClear(id);
 
@@ -189,27 +197,34 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _onPreviousClicked() {
+      const active = this._getActiveWizardItem();
+      const { id, next, validate } = active.props;
       const previous = this._popPrevious();
+       
       if (!previous) return Promise.reject();
 
+      this._setValidationClear(id);
       this._setActiveById(previous);
+      if (this.state.completed) {
+        this._resetCompleted();
+      }
       return Promise.resolve();
     }
   
     render() {
+      const { previous, values, errors, completed } = this.state;
       return (
         <div>
         {
           React.Children.map(this.wizardItems, ((Component, idx) => {
             const { id, next } = Component.props;
-            const { previous, values, errors } = this.state;
             const value = values[id];
             const error = errors[id];
             const Child = React.Children.toArray(this.props.children).find((c, cidx) => cidx === idx);
             return (
               <Component.type
                 key={id}
-                completed={this.state.active==='complete'}
+                completed={completed}
                 isActive={this._isActive(id)}
                 isLast={next(value) === 'complete'}
                 hasNext={next(value) !== 'complete' && next(value) != null}
