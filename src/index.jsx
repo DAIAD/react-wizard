@@ -1,4 +1,5 @@
 import React from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 
 const defaultNext = (children, idx) => () => { 
   if (children[idx+1]) { 
@@ -46,6 +47,7 @@ const createWizard = (WizardItemWrapper=null) => {
           onComplete: this._onComplete.bind(this),
           reset: this._reset.bind(this),
           submitItem: this._setItemValues.bind(this), 
+          getClearedValues: this._getClearedValues.bind(this)
         });
       })));
       
@@ -75,9 +77,9 @@ const createWizard = (WizardItemWrapper=null) => {
       }, {});
     }
 
-    _getClearedValues(extra=[]) {
+    _getClearedValues(filters=this.state.previous) {
       return Object.keys(this.state.values)
-      .filter(id => [...this.state.previous, ...extra].includes(id))
+      .filter(id => filters.includes(id))
       .reduce((p, c) => {
         const d = {...p};
         const item = this.wizardItems.find(it => it.props.id === c);
@@ -185,10 +187,10 @@ const createWizard = (WizardItemWrapper=null) => {
  
       const promise = this._validate(id)
       .then((value) => { 
+        this._pushPrevious(id);
         if (next(value) !== 'complete'){
           this._setActiveById(next(value));
         }
-        this._pushPrevious(id);
         this._setValidationClear(id);
 
         return value;
@@ -202,18 +204,18 @@ const createWizard = (WizardItemWrapper=null) => {
       if (promiseOnNext) {
         return promise;
       }
-      
     }
 
     _onPreviousClicked() {
       const active = this._getActiveWizardItem();
       const { id, next, validate } = active.props;
+
       const previous = this._popPrevious();
-       
-      if (!previous) return Promise.reject();
+      if (!previous) return;
 
       this._setValidationClear(id);
       this._setActiveById(previous);
+      
       if (this.state.completed) {
         this._resetCompleted();
       }
@@ -238,7 +240,6 @@ const createWizard = (WizardItemWrapper=null) => {
                 hasNext={next(value) !== 'complete' && next(value) != null}
                 hasPrevious={previous.length > 0}
                 value={value}
-                values={this._getClearedValues()}
                 errors={error}
                 step={previous.length+1}
                 {...Component.props}
@@ -299,7 +300,14 @@ const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
       super(props);
       this.renderWizardItem = renderWizardItem.bind(this); 
     }
- 
+
+    shouldComponentUpdate (nextProps, nextState) {
+      if (this.props.isActive || nextProps.isActive) {
+        return shallowCompare(this, nextProps, nextState);
+      }
+      return false;
+    }
+
     _setValue(value) {
       this.props.submitItem(this.props.id, value);
     }
@@ -307,6 +315,7 @@ const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
     render() {
       const props = {
         ...this.props,
+        values: this.props.getClearedValues(),
         setValue: this._setValue.bind(this),
       };
       return this.renderWizardItem(props);
