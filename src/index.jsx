@@ -166,6 +166,7 @@ const createWizard = (WizardItemWrapper=null) => {
          return Promise.resolve(value); 
       }
       catch(err) {
+        this._setValidationFail(id, err);
         return Promise.reject(err);
       }
     }
@@ -177,13 +178,13 @@ const createWizard = (WizardItemWrapper=null) => {
     } 
     
     _onNextClicked() {
+      const { promiseOnNext } = this.props;
       const active = this._getActiveWizardItem();
       const { id, next, validate } = active.props;
       const value = this.state.values[id];
-      
-      return this._validate(id)
+ 
+      const promise = this._validate(id)
       .then((value) => { 
-
         if (next(value) !== 'complete'){
           this._setActiveById(next(value));
         }
@@ -191,11 +192,17 @@ const createWizard = (WizardItemWrapper=null) => {
         this._setValidationClear(id);
 
         return value;
-      }, 
-      (err) => { 
-        this._setValidationFail(id, err);
-        throw err;
+      },
+      (err) => {
+        if (promiseOnNext) {
+          throw err;
+        }
       });
+      
+      if (promiseOnNext) {
+        return promise;
+      }
+      
     }
 
     _onPreviousClicked() {
@@ -210,7 +217,6 @@ const createWizard = (WizardItemWrapper=null) => {
       if (this.state.completed) {
         this._resetCompleted();
       }
-      return Promise.resolve();
     }
   
     render() {
@@ -245,9 +251,14 @@ const createWizard = (WizardItemWrapper=null) => {
       );
     }
   };
-  
+
+  Wizard.defaultProps = {
+    promiseOnNext: false
+  };
+
   Wizard.propTypes = {
     onComplete: React.PropTypes.func,
+    promiseOnNext: React.PropTypes.bool,
     children: React.PropTypes.oneOfType([
       React.PropTypes.arrayOf(React.PropTypes.element), 
       React.PropTypes.object

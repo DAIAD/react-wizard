@@ -47,6 +47,7 @@ export function WizardExample4 (props) {
     <div>
       <Wizard
         onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
+        promiseOnNext
         >
         <PlainInput
           id='singlestep'

@@ -22,7 +22,7 @@ const examples = [
   },
   {
     title: 'Example 4', 
-    description: 'An example that shows the flexibility of using the provided next/previous onClick handlers returned Promises. The wizard completes if the wizard item validates successfully in a single step with no further user interaction.', 
+    description: 'An example that shows the flexibility of using the provided next onClick handler returned Promise. The wizard completes if the wizard item validates successfully in a single step with no further user interaction.', 
     component: WizardExample4, 
     url: 'https://github.com/smanousopoulos/test-react-wiz/tree/master/example/src/examples/wizard4.jsx' 
   }
