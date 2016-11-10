@@ -31,7 +31,7 @@
   "scripts": {
     "example": "webpack && node example/server.js",
     "test" : "echo 'no tests specified.'"
-  }
+  },
   "dependencies": {
     "react-addons-shallow-compare": "^15.3.2"
   }
