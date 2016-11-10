@@ -131,15 +131,31 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _setValidationClear(id) {
+      if (this.state.errors[id] == null) return;
+
       const newErrors = {...this.state.errors};
       newErrors[id]=null;
       this.setState({ errors: newErrors });
     }
     
     _setItemValues(id, value) {
+      const { validateLive } = this.props;
+      const item = this._getWizardItem(id);
+      
       const newValues = {...this.state.values};
       newValues[id] = value;
       this.setState({ values: newValues });
+
+      //live validation
+      if (validateLive) {
+        this._validate(id, value)
+        .then(() => {
+          this._setValidationClear(id);
+        },
+        (err) => {
+          this._setValidationFail(id, err);
+        });
+      }
     }
 
     _pushPrevious(id) {
@@ -154,21 +170,21 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _setActiveById(id) {
+      if (id === 'complete') return;
+
       this.setState({ active: id });
     }
 
     //handle event functions
-    _validate(id) {
+    _validate(id, value) {
       const item = this._getWizardItem(id);
       const { validate } = item.props;
-      const value = this.state.values[id];
       
       try {
          validate(value);
          return Promise.resolve(value); 
       }
       catch(err) {
-        this._setValidationFail(id, err);
         return Promise.reject(err);
       }
     }
@@ -185,22 +201,23 @@ const createWizard = (WizardItemWrapper=null) => {
       const { id, next, validate } = active.props;
       const value = this.state.values[id];
  
-      const promise = this._validate(id)
+      const promise = this._validate(id, value)
       .then((value) => { 
         this._pushPrevious(id);
-        if (next(value) !== 'complete'){
-          this._setActiveById(next(value));
-        }
+      
+        this._setActiveById(next(value));
         this._setValidationClear(id);
 
         return value;
       },
       (err) => {
+        this._setValidationFail(id, err);
         if (promiseOnNext) {
           throw err;
         }
       });
-      
+
+      //return promise if selected
       if (promiseOnNext) {
         return promise;
       }
@@ -254,12 +271,14 @@ const createWizard = (WizardItemWrapper=null) => {
   };
 
   Wizard.defaultProps = {
-    promiseOnNext: false
+    promiseOnNext: false,
+    validateLive: false
   };
 
   Wizard.propTypes = {
-    onComplete: React.PropTypes.func,
-    promiseOnNext: React.PropTypes.bool,
+    onComplete: React.PropTypes.func, //onComplete callback function to execute
+    promiseOnNext: React.PropTypes.bool, //option to return promise in onNextClicked function
+    validateLive: React.PropTypes.bool, //option to validate on user-input, otherwise only on next
     children: React.PropTypes.oneOfType([
       React.PropTypes.arrayOf(React.PropTypes.element), 
       React.PropTypes.object
