@@ -6,25 +6,25 @@ const examples = [
     title: 'Example 1', 
     description: 'A simple example with 2 steps and confirmation', 
     component: WizardExample1, 
-    url: 'https://github.com/smanousopoulos/test-react-wiz/tree/master/example/src/examples/wizard1.jsx' 
+    url: 'https://github.com/DAIAD/react-wizard/tree/master/example/src/examples/wizard1.jsx' 
   },
   {
     title: 'Example 2', 
     description: 'The same example with the use of a wrapper component', 
     component: WizardExample2, 
-    url: 'https://github.com/smanousopoulos/test-react-wiz/tree/master/example/src/examples/wizard2.jsx' 
+    url: 'https://github.com/DAIAD/react-wizard/tree/master/example/src/examples/wizard2.jsx' 
   },
   {
     title: 'Example 3', 
     description: 'An example that demonstrates the ability to create non-linear wizard flows.', 
     component: WizardExample3, 
-    url: 'https://github.com/smanousopoulos/test-react-wiz/tree/master/example/src/examples/wizard3.jsx' 
+    url: 'https://github.com/DAIAD/react-wizard/tree/master/example/src/examples/wizard3.jsx' 
   },
   {
     title: 'Example 4', 
     description: 'An example that shows the flexibility of using the provided next onClick handler returned Promise. The wizard completes if the wizard item validates successfully in a single step with no further user interaction.', 
     component: WizardExample4, 
-    url: 'https://github.com/smanousopoulos/test-react-wiz/tree/master/example/src/examples/wizard4.jsx' 
+    url: 'https://github.com/DAIAD/react-wizard/tree/master/example/src/examples/wizard4.jsx' 
   }
 ];
 

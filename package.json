@@ -10,6 +10,13 @@
   ],
   "author": "Stelios Manousopoulos",
   "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DAIAD/react-wizard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DAIAD/react-wizard/issues"
+  },
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-cli": "^6.7.5",
@@ -25,12 +32,12 @@
     "react": "^15.0.0",
     "react-dom": "^15.0.0"
   },
+  "dependencies": {
+    "react-addons-shallow-compare": "^15.3.2"
+  },
   "scripts": {
     "build": "babel src --out-dir lib",
     "example": "webpack && node example/server.js",
     "test" : "echo 'no tests specified.'"
-  },
-  "dependencies": {
-    "react-addons-shallow-compare": "^15.3.2"
-  }
+  } 
 }
