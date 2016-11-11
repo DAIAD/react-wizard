@@ -51,8 +51,6 @@ const createWizard = (WizardItemWrapper=null) => {
         });
       })));
       
-      if (!this.wizardItems.length > 0) { return; };
-
       this.onComplete = props.onComplete ? props.onComplete : defaultOnComplete;
       
       this.state = this._getInitialState();
@@ -92,7 +90,7 @@ const createWizard = (WizardItemWrapper=null) => {
     }
     
     _getActiveWizardItem() {
-      return this.wizardItems.find(item => item.props.id === this.state.active);
+      return this._getWizardItem(this.state.active);
     }
     
     _getWizardItem(id) {
@@ -103,14 +101,6 @@ const createWizard = (WizardItemWrapper=null) => {
       return this.state.active === id;
     }
     
-    _getIdx(id) {
-      return this.wizardItems.findIndex(item => item.props.id === id);
-    }
-
-    _hasIdx(idx) {
-      return idx >= 0 && idx < this.wizardItems.length;
-    }
-
     //set state functions
     _reset() {
       this.setState(this._getInitialState());
@@ -164,13 +154,12 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _popPrevious() {
-      const last = this.state.previous.find((x,i,arr) => i === arr.length-1);
       this.setState({ previous: this.state.previous.filter((x, i, arr) => i < arr.length-1) });
-      return last;
+      return this.state.previous.find((x,i,arr) => i === arr.length-1);
     }
 
     _setActiveById(id) {
-      if (id === 'complete') return;
+      if (id == null || id === 'complete') return;
 
       this.setState({ active: id });
     }
@@ -291,7 +280,7 @@ const createWizard = (WizardItemWrapper=null) => {
 const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
   
   const _renderWithWrapper = function(props) {
-    if (!this.props.isActive) return null;
+    if (!props.isActive) return null;
     return (
       <WizardItemWrapper
         {...props} 
