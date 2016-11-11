@@ -26,6 +26,7 @@
     "react-dom": "^15.0.0"
   },
   "scripts": {
+    "build": "babel src --out-dir lib",
     "example": "webpack && node example/server.js",
     "test" : "echo 'no tests specified.'"
   },
