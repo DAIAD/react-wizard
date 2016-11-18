@@ -41,7 +41,7 @@ The following properties are passed down to each component and wrapper component
 |  reset | func | reset handler |
 |  setValue | func | the callback function to set the wizard item value, ex. () => setValue('check'), or setValue([1,2,3]), or setValue({a:1, b:2}) |
 |  value | any | the value set by setValue (initially initialValue) |
-|  values | object | the cleared wizard values, ex. {label: 'Step 1', values: 'option1'} or {label: 'Step 1', values: { value: 'options1', label: 'Option 1'}} | 
+|  values | object | the cleared wizard values with wizard items ids as keys, ex. {'step1': 'check', 'step2': [1,2,3]} | 
 |  errors | string | any validation errors |
 |  completed | bool | is wizard complete |
 |  step | number | the wizard step count |
