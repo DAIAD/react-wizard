@@ -81,10 +81,7 @@ const createWizard = (WizardItemWrapper=null) => {
       .reduce((p, c) => {
         const d = {...p};
         const item = this.wizardItems.find(it => it.props.id === c);
-        d[c] = {
-          label: item.props.title ? item.props.title : c,
-          values: this.state.values[c]
-        };
+        d[c] = this.state.values[c];
         return d;
       }, {});
     }
@@ -136,7 +133,6 @@ const createWizard = (WizardItemWrapper=null) => {
       newValues[id] = value;
       this.setState({ values: newValues });
 
-      //live validation
       if (validateLive) {
         this._validate(id, value)
         .then(() => {
@@ -206,7 +202,6 @@ const createWizard = (WizardItemWrapper=null) => {
         }
       });
 
-      //return promise if selected
       if (promiseOnNext) {
         return promise;
       }
@@ -350,7 +345,7 @@ const renderPropTypes = {
   reset: React.PropTypes.func, //reset handler
   setValue: React.PropTypes.func, //the callback function to set the wizard item value, ex. () => setValue('check'), or setValue([1,2,3]), or setValue({a:1, b:2})
   value: React.PropTypes.any, //the value set by setValue (initially initialValue)
-  values: React.PropTypes.object, //the cleared wizard values, ex. {label: 'Step 1', values: 'option1'} or {label: 'Step 1', values: { value: 'options1', label: 'Option 1'}}, or {label: 'Step 1', 
+  values: React.PropTypes.object, //the cleared wizard values as a dict with wizard items ids as keys, ex. {'step1': 'check', 'step2': [1,2,3]}, 
   errors: React.PropTypes.string, //any validation errors
   completed: React.PropTypes.bool, //wizard completed
   step: React.PropTypes.number, // the wizard step based on how many next clicked

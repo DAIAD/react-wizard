@@ -74,8 +74,8 @@ export const SelectColors = ({ setValue, value }) => {
 }
 
 export const ConfirmColors = ({ setValue, value, values }) => {
-  const name = values.name ? values.name.values : '';
-  const colors = values.colors ? values.colors.values : null;
+  const name = values.name ? values.name : '';
+  const colors = values.colors ? values.colors : null;
   return (
     <div>
       {
