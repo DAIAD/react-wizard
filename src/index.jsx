@@ -41,6 +41,7 @@ const createWizard = (WizardItemWrapper=null) => {
         return React.createElement(WizardItem, {
           next: defaultNext(children, idx),
           validate: defaultValidate,
+          ...this.props.childrenProps,
           ...Child.props, 
           onNextClicked: this._onNextClicked.bind(this),
           onPreviousClicked: this._onPreviousClicked.bind(this),
@@ -243,6 +244,7 @@ const createWizard = (WizardItemWrapper=null) => {
                 value={value}
                 errors={error}
                 step={previous.length+1}
+                {...this.props.childrenProps}
                 {...Component.props}
                 {...Child.props}
               />
@@ -256,13 +258,15 @@ const createWizard = (WizardItemWrapper=null) => {
 
   Wizard.defaultProps = {
     promiseOnNext: false,
-    validateLive: false
+    validateLive: false,
+    childrenProps: {}
   };
 
   Wizard.propTypes = {
     onComplete: React.PropTypes.func, //onComplete callback function to execute
     promiseOnNext: React.PropTypes.bool, //option to return promise in onNextClicked function
     validateLive: React.PropTypes.bool, //option to validate on user-input, otherwise only on next
+    childrenProps: React.PropTypes.object, //pass extra properties to all children
     children: React.PropTypes.oneOfType([
       React.PropTypes.arrayOf(React.PropTypes.element), 
       React.PropTypes.object
