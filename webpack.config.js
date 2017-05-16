@@ -7,7 +7,7 @@ module.exports = {
     "./example/client.jsx"
   ],
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx']
   },
   module: {
     loaders: [
@@ -23,6 +23,7 @@ module.exports = {
   ],
   output: {
     filename: "bundle.js",
-    path: __dirname + "/example/dist/"
+    publicPath: '/dist/',
+    path: __dirname + "/dist/"
   },
 }
