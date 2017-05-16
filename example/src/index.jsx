@@ -56,7 +56,7 @@ export default class Examples extends React.Component {
 
   render() {
 
-    const selected = examples.find(ex => ex.path === window.location.pathname) || examples[0];
+    const selected = examples.find(ex => ex.path === `/${window.location.pathname.split('/').slice(-1)[0]}`) || examples[0];
     return (
       <div>
         <h1>Wizard examples</h1>

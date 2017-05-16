@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './src/';
 
 render(
-  <BrowserRouter>
+  <BrowserRouter basename="/react-wizard">
     <App />
   </BrowserRouter>,
   document.getElementById('app')
