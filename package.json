@@ -36,7 +36,7 @@
     "react-addons-shallow-compare": "^15.3.2"
   },
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "babel src --out-dir lib && webpack -p",
     "start": "webpack-dev-server --devtool eval-source-map --history-api-fallback",
     "test" : "echo 'no tests specified.'"
   } 
