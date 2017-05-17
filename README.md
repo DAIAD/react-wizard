@@ -104,8 +104,8 @@ A simple wizard example is shown here
         </Wizard>
 
 
-For more examples: 
+To run locally: 
     
-    NODE_HOST=localhost NODE_PORT=3000 npm run example
+    npm run start
 
 Requires node >= 4.3.2
