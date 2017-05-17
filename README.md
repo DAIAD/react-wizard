@@ -2,7 +2,7 @@
 
 A general purpose wizard component creator for React. <br><br>
 
-Check out the live demo [here](https://smanousopoulos.github.io/react-wizard/)
+Check out the live demo [here](https://daiad.github.io/react-wizard/)
 
 A creator function is exported that takes a pure react component to wrap each wizard step as an optional argument and returns a component class to be used as the wizard. The Component handles wizard logic and rendering is left to the user for flexibility.
 
