@@ -1,6 +1,9 @@
 # react-wiz
 
 A general purpose wizard component creator for React. <br><br>
+
+Check out the live demo [here](https://smanousopoulos.github.io/react-wizard/)
+
 A creator function is exported that takes a pure react component to wrap each wizard step as an optional argument and returns a component class to be used as the wizard. The Component handles wizard logic and rendering is left to the user for flexibility.
 
 ## Installation
@@ -101,8 +104,8 @@ A simple wizard example is shown here
         </Wizard>
 
 
-For more examples: 
+To run locally: 
     
-    NODE_HOST=localhost NODE_PORT=3000 npm run example
+    npm run start
 
 Requires node >= 4.3.2
