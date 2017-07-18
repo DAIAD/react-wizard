@@ -63,7 +63,7 @@ const createWizard = (WizardItemWrapper=null) => {
     _getInitialState() {
       return {
         active: this.wizardItems[0].props.id,
-        previous: [],
+        cleared: [],
         values: this._getInitialValues(),
         completed: false,
         errors: {}
@@ -79,7 +79,7 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _getClearedValues() {
-      return filterObjByKeys(this.state.values, this.state.previous);
+      return filterObjByKeys(this.state.values, this.state.cleared);
     }
     
     _getActiveWizardItem() {
@@ -131,23 +131,20 @@ const createWizard = (WizardItemWrapper=null) => {
 
       if (validateLive) {
         this._validate(id, value)
-        .then(() => {
-          this._setValidationClear(id);
-        },
-        (err) => {
-          this._setValidationFail(id, err);
+        .catch((err) => { 
+          //just catch error 
         });
       }
     }
 
-    _pushPrevious(id) {
-      if (this.state.previous[this.state.previous.length-1] === id) return;
-      this.setState({ previous: [...this.state.previous, id] });
+    _pushCleared(id) {
+      if (this.state.cleared[this.state.cleared.length-1] === id) return;
+      this.setState({ cleared: [...this.state.cleared, id] });
     }
 
-    _popPrevious() {
-      this.setState({ previous: this.state.previous.filter((x, i, arr) => i < arr.length-1) });
-      return this.state.previous.find((x,i,arr) => i === arr.length-1);
+    _popCleared() {
+      this.setState({ cleared: this.state.cleared.filter((x, i, arr) => i < arr.length-1) });
+      return this.state.cleared.find((x,i,arr) => i === arr.length-1);
     }
 
     _setActiveById(id) {
@@ -160,14 +157,17 @@ const createWizard = (WizardItemWrapper=null) => {
     _validate(id, value) {
       const item = this._getWizardItem(id);
       const { validate } = item.props;
-      
-      try {
-         validate(value);
-         return Promise.resolve(value); 
-      }
-      catch(err) {
-        return Promise.reject(err);
-      }
+      return new Promise((resolve, reject) => {
+        try {
+           validate(value);
+           this._setValidationClear(id);
+           return resolve(value);
+        }
+        catch(err) {
+          this._setValidationFail(id, err);
+          return reject(err);
+        }
+      });
     }
 
     _onComplete() {
@@ -182,36 +182,29 @@ const createWizard = (WizardItemWrapper=null) => {
       const { id, next, validate } = active.props;
       const value = this.state.values[id];
  
-      const promise = this._validate(id, value)
+      return this._validate(id, value)
       .then((value) => { 
-        this._pushPrevious(id);
-      
+        this._pushCleared(id);
         this._setActiveById(next(value));
-        this._setValidationClear(id);
-
         return value;
       },
       (err) => {
-        this._setValidationFail(id, err);
         if (promiseOnNext) {
+          // if promise on next prop, rethrow and let user handle
           throw err;
         }
       });
-
-      if (promiseOnNext) {
-        return promise;
-      }
     }
 
     _onPreviousClicked() {
       const active = this._getActiveWizardItem();
       const { id, next, validate } = active.props;
 
-      const previous = this._popPrevious();
-      if (!previous) return;
+      const cleared = this._popCleared();
+      if (!cleared) return;
 
       this._setValidationClear(id);
-      this._setActiveById(previous);
+      this._setActiveById(cleared);
       
       if (this.state.completed) {
         this._resetCompleted();
@@ -219,7 +212,7 @@ const createWizard = (WizardItemWrapper=null) => {
     }
   
     render() {
-      const { previous, values, errors, completed } = this.state;
+      const { cleared, values, errors, completed } = this.state;
       return (
         <div>
         {
@@ -235,10 +228,10 @@ const createWizard = (WizardItemWrapper=null) => {
                 isActive={this._isActive(id)}
                 isLast={next(value) === 'complete'}
                 hasNext={next(value) !== 'complete' && next(value) != null}
-                hasPrevious={previous.length > 0}
+                hasPrevious={cleared.length > 0}
                 value={value}
                 errors={error}
-                step={previous.length+1}
+                step={cleared.length+1}
                 {...this.props.childrenProps}
                 {...Component.props}
                 {...Child.props}
