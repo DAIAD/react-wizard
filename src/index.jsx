@@ -1,6 +1,8 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 
+import { filterObjByKeys } from './utils';
+
 const defaultNext = (children, idx) => () => { 
   if (children[idx+1]) { 
     return children[idx+1].props.id; 
@@ -76,15 +78,8 @@ const createWizard = (WizardItemWrapper=null) => {
       }, {});
     }
 
-    _getClearedValues(filters=this.state.previous) {
-      return Object.keys(this.state.values)
-      .filter(id => filters.includes(id))
-      .reduce((p, c) => {
-        const d = {...p};
-        const item = this.wizardItems.find(it => it.props.id === c);
-        d[c] = this.state.values[c];
-        return d;
-      }, {});
+    _getClearedValues() {
+      return filterObjByKeys(this.state.values, this.state.previous);
     }
     
     _getActiveWizardItem() {
