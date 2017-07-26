@@ -26,15 +26,15 @@ function WizardItemRender(props) {
       <div>
         { 
           hasPrevious ? 
-            <button onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
+            <button className="reset" onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
             :
               <div />
          }
          {
            hasNext ?
-             <button onClick={() => onNextClicked().then(() => {}, () => {})} style={{float: 'right'}}>Next</button>
+             <button className="next" onClick={() => onNextClicked().then(() => {}, () => {})} style={{float: 'right'}}>Next</button>
             :
-              <button onClick={() => { onNextClicked().then(onComplete, (err) => {}); }} style={{float: 'right'}}>Send</button>
+              <button className="complete" onClick={() => { onNextClicked().then(onComplete, (err) => {}); }} style={{float: 'right'}}>Send</button>
         }
 
       </div>
@@ -44,19 +44,18 @@ function WizardItemRender(props) {
 
 export function WizardExample4 (props) {
   return (
-    <div>
-      <Wizard
-        onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
-        promiseOnNext
-        >
-        <PlainInput
-          id='singlestep'
-          title='Single step'
-          description='Write anything'
-          initialValue=''
-          validate={value => { if (!value) { throw 'Say sth'; } }}
-        />
-      </Wizard>
-    </div>
+    <Wizard
+      onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
+      promiseOnNext
+      {...props}
+      >
+      <PlainInput
+        id='singlestep'
+        title='Single step'
+        description='Write anything'
+        initialValue=''
+        validate={value => { if (!value) { throw 'Say sth'; } }}
+      />
+    </Wizard>
   );
 }

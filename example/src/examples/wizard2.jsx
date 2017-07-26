@@ -19,7 +19,7 @@ function WizardItemRender(props) {
       <div>
         { 
           hasPrevious ? 
-            <button onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
+            <button className="prev" onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
             :
               <div />
          }
@@ -29,9 +29,9 @@ function WizardItemRender(props) {
              :
                (
                hasNext ?
-                <button onClick={onNextClicked} style={{float: 'right'}}>Next</button>
+                <button className="next" onClick={onNextClicked} style={{float: 'right'}}>Next</button>
                 :
-                  <button onClick={onComplete} style={{float: 'right'}}>Send</button>
+                  <button className="complete" onClick={onComplete} style={{float: 'right'}}>Send</button>
                )
          }
       </div>
@@ -43,6 +43,7 @@ export function WizardExample2 (props) {
   return (
     <Wizard
       onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
+      {...props}
       >
         <PlainInput
           id='name'

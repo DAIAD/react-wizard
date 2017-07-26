@@ -36,7 +36,7 @@ export const PlainCheckboxes = ({ setValue, value, options }) => {
     <ul>
       {
         options.map(option => 
-           <li key={option}>
+           <li key={option} className={option}>
              <label>
                <input 
                  type="checkbox" 

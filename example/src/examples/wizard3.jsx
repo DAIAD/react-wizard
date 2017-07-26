@@ -17,20 +17,20 @@ function WizardItemRender(props) {
       <br />
       { errors ? <div><br /><span>Validation fail: {errors}</span><br /></div> : <div /> }
       <br />
-      <button onClick={reset}>Reset</button>
+      <button className="reset" onClick={reset}>Reset</button>
       <br />
       <div>
         { 
           hasPrevious ? 
-            <button onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
+            <button className="prev" onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
             :
               <div />
          }
          {
            hasNext ?
-            <button onClick={onNextClicked} style={{float: 'right'}}>Next</button>
+            <button className="next" onClick={onNextClicked} style={{float: 'right'}}>Next</button>
             :
-              <button onClick={onComplete} style={{float: 'right'}}>Send</button>
+              <button className="complete" onClick={onComplete} style={{float: 'right'}}>Send</button>
         }
       </div>
     </div>
@@ -41,6 +41,7 @@ export function WizardExample3 (props) {
   return (
     <Wizard
       onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
+      {...props}
       >
         <Fork
           id='fork'
