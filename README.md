@@ -108,4 +108,8 @@ To run locally:
     
     npm run start
 
+To run tests:
+    
+    npm run test
+
 Requires node >= 4.3.2
