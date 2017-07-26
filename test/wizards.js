@@ -16,13 +16,12 @@ import { WizardExample1, WizardExample2, WizardExample3, WizardExample4 } from '
 import { delay } from './delay';
 
 const logComplete = (values) => { console.log('Wizard complete: \n', values); };
+
 [
   { name: 'wizard without wrapper', component: WizardExample1 },
   { name: 'wizard with wrapper', component: WizardExample2 }
 ].forEach(example => { 
   describe(example.name, function() {
-
-
     it('should complete successfully', function(done) {
       const onComplete = sinon.spy(logComplete);
       const wrapper = mount(example.component({ onComplete }));
