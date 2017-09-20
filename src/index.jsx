@@ -90,6 +90,20 @@ const createWizard = (WizardItemWrapper=null) => {
       return this.wizardItems.find(item => item.props.id === id);
     }
 
+    _getIndexById(id) {
+      return this.wizardItems.findIndex(it => it.props.id === id);
+    }
+
+    _getSteps() {
+      return this.wizardItems.map(item => ({ 
+        id: item.props.id, 
+        index: this._getIndexById(item.props.id),
+        title: item.props.title, 
+        cleared: this.state.cleared.find(it => it === item.props.id) ? true : false, 
+        active: this._isActive(item.props.id), 
+      }));
+    }
+
     _isActive(id) {
       return this.state.active === id;
     }
@@ -221,6 +235,7 @@ const createWizard = (WizardItemWrapper=null) => {
             const value = values[id];
             const error = errors[id];
             const Child = React.Children.toArray(this.props.children).find((c, cidx) => cidx === idx);
+            const steps = this._getSteps();
             return (
               <Component.type
                 key={id}
@@ -231,7 +246,8 @@ const createWizard = (WizardItemWrapper=null) => {
                 hasPrevious={cleared.length > 0}
                 value={value}
                 errors={error}
-                step={cleared.length+1}
+                step={steps.find(s => s.active)}
+                steps={steps}
                 {...this.props.childrenProps}
                 {...Component.props}
                 {...Child.props}
