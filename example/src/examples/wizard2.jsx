@@ -61,7 +61,15 @@ export function WizardExample2 (props) {
           title='Hello'
           description='Just write your name'
           initialValue=''
-          validate={value => { if (!value) { throw 'No noname'; } }}
+          validate={value => new Promise((resolve, reject) => {
+            setTimeout(() => {
+              if (!value) {
+                reject('No noname');
+              } else {
+                resolve();
+              }
+          }, 5);
+          })}
         />
         <SelectColors
           id='colors'

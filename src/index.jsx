@@ -192,20 +192,13 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     //handle event functions
-    _validate(id, value) {
+		_validate(id, value) {
       const item = this._getWizardItem(id);
       const { validate } = item.props;
-      return new Promise((resolve, reject) => {
-        try {
-           validate(value);
-           this._setValidationClear(id);
-           return resolve(value);
-        }
-        catch(err) {
-          this._setValidationFail(id, err);
-          return reject(err);
-        }
-      });
+      return Promise.resolve()
+      .then(() => validate(value))
+      .then(() => { this._setValidationClear(id); return value; })
+      .catch((err) => { this._setValidationFail(id, err); throw err; });
     }
 
     _onComplete() {
