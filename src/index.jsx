@@ -96,12 +96,23 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _getSteps() {
-      return this.wizardItems.map(item => ({ 
-        id: item.props.id, 
-        index: this._getIndexById(item.props.id),
-        title: item.props.title, 
-        cleared: this.state.cleared.find(it => it === item.props.id) ? true : false, 
-        active: this._isActive(item.props.id), 
+      const following = [];
+      let current = this.state.active;
+      let step = this._getWizardItem(current);
+      while(current !== 'complete' || !step || !step.props) {
+        following.push(current);
+        step = this._getWizardItem(current);
+        current = step.props.next(this.state.values[current]);
+      }
+      const cleared = this.state.cleared;
+      const path = [...cleared, ...following.filter(x => !cleared.includes(x))];
+
+      return path.map((id, idx) => ({
+        id: id,
+        index: idx,
+        title: this._getWizardItem(id).props.title,
+        cleared: this.state.cleared.find(it => it === id) ? true : false,
+        active: this._isActive(id),
       }));
     }
 
@@ -249,6 +260,7 @@ const createWizard = (WizardItemWrapper=null) => {
   
     render() {
       const { cleared, values, errors, completed } = this.state;
+      const steps = this._getSteps();
       return (
         <div>
         {
@@ -257,7 +269,6 @@ const createWizard = (WizardItemWrapper=null) => {
             const value = values[id];
             const error = errors[id];
             const Child = React.Children.toArray(this.props.children).find((c, cidx) => cidx === idx);
-            const steps = this._getSteps();
             return (
               <Component.type
                 key={id}
