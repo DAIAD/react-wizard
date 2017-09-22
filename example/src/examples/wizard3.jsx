@@ -6,15 +6,19 @@ const Wizard = createWizard(WizardItemRender);
 
 //generic wizard item render
 function WizardItemRender(props) {
-  const { id, title, description, children, hasPrevious, hasNext, isLast, onNextClicked, onPreviousClicked, reset, errors, completed, steps, step, onComplete } = props;
+  const { id, title, description, children, hasPrevious, hasNext, isLast, onNextClicked, onPreviousClicked, reset, errors, completed, steps, step, onComplete, onGoToId } = props;
   
   return (
     <div>
       { 
         steps.map(step => (
           <span key={step.id}>
-            { step.cleared ? <span>&#10004;</span> : <span /> }
-            <span style={{ marginRight: 10 }}>{`Step ${step.index+1}: ${step.title}`}</span>
+            { 
+              (step.cleared || step.active) ? 
+                <a href="#" id={step.id} style={{ marginRight: 10 }} onClick={() => onGoToId(step.id)}><span>&#10004;{`Step ${step.index+1}: ${step.title}`}</span></a>
+                  : 
+                  <span style={{ marginRight: 10 }}>{`Step ${step.index+1}: ${step.title}`}</span>
+            }
           </span>
         ))
       }

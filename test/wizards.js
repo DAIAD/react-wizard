@@ -53,7 +53,7 @@ const logComplete = (values) => { console.log('Wizard complete: \n', values); };
         expect(wrapper.state('active')).to.equal('confirm');
         wrapper.find('.complete').simulate('click');
         expect(wrapper.state('completed')).to.equal(true);
-        expect(wrapper.state('values')).deep.equals({name: 'asd', colors: ['blue', 'green'], confirm: '' });
+        expect(wrapper.state('values')).to.deep.equal({name: 'asd', colors: ['blue', 'green'], confirm: '' });
         expect(onComplete).to.be.calledOnce;
         expect(onComplete.calledWith({name: 'asd', colors: ['blue', 'green'] })).to.equal(true);
 
@@ -80,13 +80,26 @@ describe('wizard with forked execution', function() {
     expect(wrapper.state('values').fork).to.equal('finish');
 
     wrapper.find('.next').simulate('click');
-    
+
     delay(() => {
       expect(wrapper.state('cleared')).contains('fork');
       expect(wrapper.state('active')).to.equal('confirm');
+
+      wrapper.find('#fork').simulate('click');
+    }, 1)
+    .delay(() => {
+      expect(wrapper.state('cleared')).to.deep.equal([]);
+      expect(wrapper.state('active')).to.equal('fork');
+
+      wrapper.find('.next').simulate('click');
+    })
+    .delay(() => {
+      expect(wrapper.state('cleared')).contains('fork');
+      expect(wrapper.state('active')).to.equal('confirm');
+
       wrapper.find('.complete').simulate('click');
       expect(wrapper.state('completed')).to.equal(true);
-      expect(wrapper.state('values')).deep.equals({fork: 'finish', colors: [], confirm: '' });
+      expect(wrapper.state('values')).to.deep.equal({fork: 'finish', colors: [], confirm: '' });
 
       expect(onComplete).to.be.calledOnce;
       expect(onComplete.calledWith({ fork: 'finish' })).to.equal(true);
@@ -114,7 +127,7 @@ describe('wizard using promiseOnNext', function() {
     delay(() => {
       expect(wrapper.state('cleared')).contains('singlestep');
       expect(wrapper.state('completed')).to.equal(true);
-      expect(wrapper.state('values')).deep.equals({ singlestep: 'sth' });
+      expect(wrapper.state('values')).to.deep.equal({ singlestep: 'sth' });
 
       expect(onComplete).to.be.calledOnce;
       expect(onComplete.calledWith({ singlestep: 'sth' })).to.equal(true);

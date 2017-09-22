@@ -47,6 +47,7 @@ const createWizard = (WizardItemWrapper=null) => {
           ...Child.props, 
           onNextClicked: this._onNextClicked.bind(this),
           onPreviousClicked: this._onPreviousClicked.bind(this),
+          onGoToId: this._onGoToId.bind(this),
           onComplete: this._onComplete.bind(this),
           reset: this._reset.bind(this),
           submitItem: this._setItemValues.bind(this), 
@@ -157,8 +158,20 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     _popCleared() {
-      this.setState({ cleared: this.state.cleared.filter((x, i, arr) => i < arr.length-1) });
-      return this.state.cleared.find((x,i,arr) => i === arr.length-1);
+      const cleared = [...this.state.cleared];
+      const last = cleared.pop();
+      this.setState({ cleared });
+      return last;
+    }
+
+    _popUntilId(id) {
+      const idx = this.state.cleared.findIndex(c => c === id);
+      const last = this.state.cleared[idx];
+      if (idx !== -1) {
+        const cleared = this.state.cleared.slice(0, idx);
+        this.setState({ cleared });
+      }
+      return last;
     }
 
     _setActiveById(id) {
@@ -223,6 +236,15 @@ const createWizard = (WizardItemWrapper=null) => {
       if (this.state.completed) {
         this._resetCompleted();
       }
+    }
+
+    _onGoToId(id) {
+      const last = this._popUntilId(id);
+
+      if (this.state.cleared.includes(id)) {
+        this._setActiveById(id);
+      }
+
     }
   
     render() {

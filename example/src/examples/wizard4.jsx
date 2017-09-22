@@ -11,7 +11,8 @@ function WizardItemRender(props) {
   return (
     <div>
       <h3>{title}</h3>
-      <h4>Step {step}.</h4>
+      
+      <h4>Step {step.index + 1}&nbsp;{ step.cleared ? <span>&#10004;</span> : <span /> }</h4>
       <h4>{description}</h4>
       { children }
       <br />
