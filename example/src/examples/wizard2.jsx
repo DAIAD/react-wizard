@@ -5,12 +5,23 @@ import createWizard from '../../../src/';
 const Wizard = createWizard(WizardItemRender);
 
 function WizardItemRender(props) {
-  const { id, title, description, children, hasPrevious, hasNext, isLast, onNextClicked, onPreviousClicked, reset, errors, completed, step, onComplete } = props;
+  const { id, title, description, children, hasPrevious, hasNext, isLast, onNextClicked, onPreviousClicked, reset, errors, completed, step, steps, onComplete, onGoToId } = props;
   
   return (
     <div>
       <h3>{title}</h3>
-      <h4>Step {step}.</h4>
+      { 
+        steps.map(step => (
+          <span key={step.id}>
+            { 
+              (step.cleared || step.active) ? 
+                <a href="#" style={{ marginRight: 10 }} onClick={() => onGoToId(step.id)}><span>&#10004;{`Step ${step.index+1}: ${step.title}`}</span></a>
+                  : 
+                  <span style={{ marginRight: 10 }}>{`Step ${step.index+1}: ${step.title}`}</span>
+            }
+          </span>
+        ))
+      }
       <h4>{description}</h4>
       { children }
       <br />
@@ -19,7 +30,7 @@ function WizardItemRender(props) {
       <div>
         { 
           hasPrevious ? 
-            <button onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
+            <button className="prev" onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
             :
               <div />
          }
@@ -29,9 +40,9 @@ function WizardItemRender(props) {
              :
                (
                hasNext ?
-                <button onClick={onNextClicked} style={{float: 'right'}}>Next</button>
+                <button className="next" onClick={onNextClicked} style={{float: 'right'}}>Next</button>
                 :
-                  <button onClick={onComplete} style={{float: 'right'}}>Send</button>
+                  <button className="complete" onClick={onComplete} style={{float: 'right'}}>Send</button>
                )
          }
       </div>
@@ -43,13 +54,22 @@ export function WizardExample2 (props) {
   return (
     <Wizard
       onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
+      {...props}
       >
         <PlainInput
           id='name'
           title='Hello'
           description='Just write your name'
           initialValue=''
-          validate={value => { if (!value) { throw 'No noname'; } }}
+          validate={value => new Promise((resolve, reject) => {
+            setTimeout(() => {
+              if (!value) {
+                reject('No noname');
+              } else {
+                resolve();
+              }
+          }, 5);
+          })}
         />
         <SelectColors
           id='colors'

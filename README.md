@@ -18,6 +18,8 @@ The wizard accepts the following options
 | onComplete | func | onComplete callback function to execute |
 | promiseOnNext | bool | option to return promise in onNextClicked function |
 | validateLive | bool | option to validate on user-input, otherwise only on next |
+| initialActive | string | pass step id to start from step other than first. Note that a valid path to step id given initialValues must exist. |
+| childrenProps | object | object that is passed as props to all children |
 | children | oneOfType([<br>arrayOf(element), <br> object]).isRequired | wizard step components |
 
 
@@ -47,7 +49,8 @@ The following properties are passed down to each component and wrapper component
 |  values | object | the cleared wizard values with wizard items ids as keys, ex. {'step1': 'check', 'step2': [1,2,3]} | 
 |  errors | string | any validation errors |
 |  completed | bool | is wizard complete |
-|  step | number | the wizard step count |
+|  steps | arrayOf(object) | array of all steps objects (based on the current flow) containing id (string), title (string), index (number), cleared (bool), active (bool) |  
+|  step | object | the active step object |
 |  isActive | bool | is wizard item active (by default only active is displayed) |
 |  isLast | bool | is the last wizard item |
 |  hasNext | bool | wizard item has next |
@@ -107,5 +110,9 @@ A simple wizard example is shown here
 To run locally: 
     
     npm run start
+
+To run tests:
+    
+    npm run test
 
 Requires node >= 4.3.2

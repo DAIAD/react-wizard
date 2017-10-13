@@ -1,6 +1,8 @@
 import React from 'react';
 import shallowCompare from 'react-addons-shallow-compare';
 
+import { filterObjByKeys } from './utils';
+
 const defaultNext = (children, idx) => () => { 
   if (children[idx+1]) { 
     return children[idx+1].props.id; 
@@ -28,12 +30,12 @@ const createWizard = (WizardItemWrapper=null) => {
       super(props);
       
       const { children } = props;
-      if (!children) throw `No wizard items specified. Check Wizard`;
+      if (!children) throw new Error(`No wizard items specified. Check Wizard`);
 
       this.wizardItems = React.Children.toArray(React.Children.map(children, ((Child, idx) => {
         if (!Child.props.id) { 
-          throw `Each wizard child must have an id property. `+
-                `Check ${Child.type.name} wizard item`;
+          throw new Error(`Each wizard child must have an id property. `+
+                `Check ${Child.type.name} wizard item`);
         };
 
         const WizardItem = createWizardItem(Child.type, WizardItemWrapper);
@@ -45,6 +47,7 @@ const createWizard = (WizardItemWrapper=null) => {
           ...Child.props, 
           onNextClicked: this._onNextClicked.bind(this),
           onPreviousClicked: this._onPreviousClicked.bind(this),
+          onGoToId: this._onGoToId.bind(this),
           onComplete: this._onComplete.bind(this),
           reset: this._reset.bind(this),
           submitItem: this._setItemValues.bind(this), 
@@ -59,10 +62,13 @@ const createWizard = (WizardItemWrapper=null) => {
 
     //helper get functions
     _getInitialState() {
+      const first = this.wizardItems[0].props.id;
+      const values = this._getInitialValues();
+
       return {
-        active: this.wizardItems[0].props.id,
-        previous: [],
-        values: this._getInitialValues(),
+        active: this.props.initialActive || first,
+        cleared: this.props.initialActive && this._getPath(first, this.props.initialActive, values) || [],
+        values,
         completed: false,
         errors: {}
       };
@@ -71,20 +77,22 @@ const createWizard = (WizardItemWrapper=null) => {
     _getInitialValues() {
       return this.wizardItems.reduce((p, c) => {
         const d = {...p};
-        d[c.props.id] = c.props.initialValue; 
+        const initialValue = c.props.initialValue != null ? 
+          c.props.initialValue 
+            : (this.props.initialValues && this.props.initialValues[c.props.id]); 
+
+        if (initialValue == null) {
+          throw new Error(`Wizard: No initialValue set for ${c.props.id}.` + 
+                          `You can either provide initialValue as step prop or all initialValues as Wizard Component prop`);
+        }
+
+        d[c.props.id] = initialValue;
         return d;
       }, {});
     }
 
-    _getClearedValues(filters=this.state.previous) {
-      return Object.keys(this.state.values)
-      .filter(id => filters.includes(id))
-      .reduce((p, c) => {
-        const d = {...p};
-        const item = this.wizardItems.find(it => it.props.id === c);
-        d[c] = this.state.values[c];
-        return d;
-      }, {});
+    _getClearedValues() {
+      return filterObjByKeys(this.state.values, this.state.cleared);
     }
     
     _getActiveWizardItem() {
@@ -93,6 +101,41 @@ const createWizard = (WizardItemWrapper=null) => {
     
     _getWizardItem(id) {
       return this.wizardItems.find(item => item.props.id === id);
+    }
+
+    _getIndexById(id) {
+      return this.wizardItems.findIndex(it => it.props.id === id);
+    }
+
+    _getPath(from, to, values) {
+      if (!to || !(to in {...values, complete: null })) { 
+        throw new Error(`Wizard: No path to '${to}'. Check initialActive prop`);
+      };
+      const path = [];
+
+      let current = from;
+      let step = this._getWizardItem(current);
+
+      while(current !== to) {
+        path.push(current);
+        step = this._getWizardItem(current);
+        if (!step || !step.props) {
+          throw new Error(`Wizard: No path to '${to}'. Check initialActive prop and initialValues`);
+        }
+        current = step.props.next(values[current]);
+      }
+      return path;
+    }
+
+    _getSteps() {
+      const path = this._getPath(this.wizardItems[0].props.id, 'complete', this.state.values);
+      return path.map((id, idx) => ({
+        id: id,
+        index: idx,
+        title: this._getWizardItem(id).props.title,
+        cleared: this.state.cleared.find(it => it === id) ? true : false,
+        active: this._isActive(id),
+      }));
     }
 
     _isActive(id) {
@@ -136,23 +179,32 @@ const createWizard = (WizardItemWrapper=null) => {
 
       if (validateLive) {
         this._validate(id, value)
-        .then(() => {
-          this._setValidationClear(id);
-        },
-        (err) => {
-          this._setValidationFail(id, err);
+        .catch((err) => { 
+          //just catch error 
         });
       }
     }
 
-    _pushPrevious(id) {
-      if (this.state.previous[this.state.previous.length-1] === id) return;
-      this.setState({ previous: [...this.state.previous, id] });
+    _pushCleared(id) {
+      if (this.state.cleared[this.state.cleared.length-1] === id) return;
+      this.setState({ cleared: [...this.state.cleared, id] });
     }
 
-    _popPrevious() {
-      this.setState({ previous: this.state.previous.filter((x, i, arr) => i < arr.length-1) });
-      return this.state.previous.find((x,i,arr) => i === arr.length-1);
+    _popCleared() {
+      const cleared = [...this.state.cleared];
+      const last = cleared.pop();
+      this.setState({ cleared });
+      return last;
+    }
+
+    _popUntilId(id) {
+      const idx = this.state.cleared.findIndex(c => c === id);
+      const last = this.state.cleared[idx];
+      if (idx !== -1) {
+        const cleared = this.state.cleared.slice(0, idx);
+        this.setState({ cleared });
+      }
+      return last;
     }
 
     _setActiveById(id) {
@@ -162,17 +214,13 @@ const createWizard = (WizardItemWrapper=null) => {
     }
 
     //handle event functions
-    _validate(id, value) {
+		_validate(id, value) {
       const item = this._getWizardItem(id);
       const { validate } = item.props;
-      
-      try {
-         validate(value);
-         return Promise.resolve(value); 
-      }
-      catch(err) {
-        return Promise.reject(err);
-      }
+      return Promise.resolve()
+      .then(() => validate(value))
+      .then(() => { this._setValidationClear(id); return value; })
+      .catch((err) => { this._setValidationFail(id, err); throw err; });
     }
 
     _onComplete() {
@@ -187,44 +235,47 @@ const createWizard = (WizardItemWrapper=null) => {
       const { id, next, validate } = active.props;
       const value = this.state.values[id];
  
-      const promise = this._validate(id, value)
+      return this._validate(id, value)
       .then((value) => { 
-        this._pushPrevious(id);
-      
+        this._pushCleared(id);
         this._setActiveById(next(value));
-        this._setValidationClear(id);
-
         return value;
       },
       (err) => {
-        this._setValidationFail(id, err);
         if (promiseOnNext) {
+          // if promise on next prop, rethrow and let user handle
           throw err;
         }
       });
-
-      if (promiseOnNext) {
-        return promise;
-      }
     }
 
     _onPreviousClicked() {
       const active = this._getActiveWizardItem();
       const { id, next, validate } = active.props;
 
-      const previous = this._popPrevious();
-      if (!previous) return;
+      const cleared = this._popCleared();
+      if (!cleared) return;
 
       this._setValidationClear(id);
-      this._setActiveById(previous);
+      this._setActiveById(cleared);
       
       if (this.state.completed) {
         this._resetCompleted();
       }
     }
+
+    _onGoToId(id) {
+      const last = this._popUntilId(id);
+
+      if (this.state.cleared.includes(id)) {
+        this._setActiveById(id);
+      }
+
+    }
   
     render() {
-      const { previous, values, errors, completed } = this.state;
+      const { cleared, values, errors, completed } = this.state;
+      const steps = this._getSteps();
       return (
         <div>
         {
@@ -240,10 +291,11 @@ const createWizard = (WizardItemWrapper=null) => {
                 isActive={this._isActive(id)}
                 isLast={next(value) === 'complete'}
                 hasNext={next(value) !== 'complete' && next(value) != null}
-                hasPrevious={previous.length > 0}
+                hasPrevious={cleared.length > 0}
                 value={value}
                 errors={error}
-                step={previous.length+1}
+                step={steps.find(s => s.active)}
+                steps={steps}
                 {...this.props.childrenProps}
                 {...Component.props}
                 {...Child.props}
@@ -259,13 +311,16 @@ const createWizard = (WizardItemWrapper=null) => {
   Wizard.defaultProps = {
     promiseOnNext: false,
     validateLive: false,
-    childrenProps: {}
+    childrenProps: {},
+    initialValues: {},
   };
 
   Wizard.propTypes = {
     onComplete: React.PropTypes.func, //onComplete callback function to execute
     promiseOnNext: React.PropTypes.bool, //option to return promise in onNextClicked function
     validateLive: React.PropTypes.bool, //option to validate on user-input, otherwise only on next
+    initialActive: React.PropTypes.string, // pass step id to start from step other than first. 
+    initialValues: React.PropTypes.object, // alternative way to pass initialValues for children
     childrenProps: React.PropTypes.object, //pass extra properties to all children
     children: React.PropTypes.oneOfType([
       React.PropTypes.arrayOf(React.PropTypes.element), 
@@ -333,7 +388,7 @@ const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
     id: React.PropTypes.string.isRequired, // id is required
     title: React.PropTypes.string,
     description: React.PropTypes.string,
-    initialValue: React.PropTypes.any.isRequired, //initialValue required to define return value expected type
+    initialValue: React.PropTypes.any, //initialValue defines return value expected type
     validate: React.PropTypes.func, // ex. value => !value ? throw 'Error' : null
     next: React.PropTypes.func, // ex. value => value == 1 ? 'id1' : 'id2'
   };

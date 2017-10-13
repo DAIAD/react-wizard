@@ -12,7 +12,7 @@ function Step1 (props) {
       <p>{description}</p>
       <PlainInput {...{value, setValue}} />
       { errors ? <div><br /><span>Validation fail: {errors}</span></div> : <div /> }
-      <button onClick={onNextClicked} style={{float: 'right'}}>Next</button>
+      <button className="next" onClick={onNextClicked} style={{float: 'right'}}>Next</button>
     </div>
   );
 }
@@ -25,8 +25,8 @@ function Step2 (props) {
       <p>{description}</p>
       <SelectColors {...{value, setValue}} />
       { errors ? <div><span>Validation fail: {errors}</span></div> : <div /> }
-      <button onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
-      <button onClick={onNextClicked} style={{float: 'right'}}>Next</button>
+      <button className="prev" onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
+      <button className="next" onClick={onNextClicked} style={{float: 'right'}}>Next</button>
     </div>
   );
 }
@@ -40,11 +40,11 @@ function Step3 (props) {
       <ConfirmColors {...{value, setValue, values}} />
       <br />
       { errors ? <div><span>Validation fail: {errors}</span></div> : <div /> }
-      <button onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
+      <button className="prev" onClick={onPreviousClicked} style={{float: 'left'}}>Previous</button>
       { completed ? 
-        <button onClick={reset} style={{ float: 'right' }}>Start over?</button>
+        <button className="reset" onClick={reset} style={{ float: 'right' }}>Start over?</button>
         :
-          <button onClick={onComplete} style={{float: 'right'}}>Send</button>
+          <button className="complete" onClick={onComplete} style={{float: 'right'}}>Send</button>
        }
     </div>
   );
@@ -54,13 +54,22 @@ export function WizardExample1 (props) {
   return (
     <Wizard
       onComplete={values => { alert(`Wizard complete: \n ${JSON.stringify(values)}`); }}
+      {...props}
       >
         <Step1
           id='name'
           title='Hello'
           description='Just write your name'
           initialValue=''
-          validate={value => { if (!value) { throw 'No noname'; } }}
+          validate={value => new Promise((resolve, reject) => {
+            setTimeout(() => {
+              if (!value) {
+                reject('No noname');
+              } else {
+                resolve();
+              }
+            }, 5);
+          })}
         />
         <Step2
           id='colors'
