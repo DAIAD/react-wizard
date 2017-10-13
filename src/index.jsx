@@ -30,12 +30,12 @@ const createWizard = (WizardItemWrapper=null) => {
       super(props);
       
       const { children } = props;
-      if (!children) throw `No wizard items specified. Check Wizard`;
+      if (!children) throw new Error(`No wizard items specified. Check Wizard`);
 
       this.wizardItems = React.Children.toArray(React.Children.map(children, ((Child, idx) => {
         if (!Child.props.id) { 
-          throw `Each wizard child must have an id property. `+
-                `Check ${Child.type.name} wizard item`;
+          throw new Error(`Each wizard child must have an id property. `+
+                `Check ${Child.type.name} wizard item`);
         };
 
         const WizardItem = createWizardItem(Child.type, WizardItemWrapper);
@@ -100,7 +100,7 @@ const createWizard = (WizardItemWrapper=null) => {
 
     _getPath(from, to, values) {
       if (!to || !(to in {...values, complete: null })) { 
-        throw `No path to '${to}'. Check initialActive prop`;
+        throw new Error(`Wizard: No path to '${to}'. Check initialActive prop`);
       };
       const path = [];
 
@@ -111,7 +111,7 @@ const createWizard = (WizardItemWrapper=null) => {
         path.push(current);
         step = this._getWizardItem(current);
         if (!step || !step.props) {
-          throw `No path to '${to}'. Check initialActive prop and initialValues`;
+          throw new Error(`Wizard: No path to '${to}'. Check initialActive prop and initialValues`);
         }
         current = step.props.next(values[current]);
       }
