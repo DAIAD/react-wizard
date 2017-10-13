@@ -11,7 +11,7 @@ import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 chai.use(chaiEnzyme());
 
-import { WizardExample1, WizardExample2, WizardExample3, WizardExample4 } from '../example/src/examples';
+import { WizardExample1, WizardExample2, WizardExample3, WizardExample4, WizardExample5 } from '../example/src/examples';
 
 import { delay } from './delay';
 
@@ -117,10 +117,47 @@ describe('wizard with forked execution', function() {
   });
 });
 
-describe('wizard using promiseOnNext', function() {
+describe('wizard with initialActive', function() {
   it('should complete successfully', function(done) {
     const onComplete = sinon.spy(logComplete);
     const wrapper = mount(WizardExample4({ onComplete }));
+    
+    expect(wrapper.state('active')).to.equal('colors');
+    expect(wrapper.state('values')).to.deep.equal({ fork: 'colors', colors: ['blue'], confirm: '' });
+
+    wrapper.find('.prev').simulate('click');
+
+    delay(() => {
+      expect(wrapper.state('active')).to.equal('fork');
+
+      wrapper.find('.next').simulate('click');
+    }, 10)
+    .delay(() => {
+      expect(wrapper.state('active')).to.equal('colors');
+      expect(wrapper.state('values')).to.deep.equal({ fork: 'colors', colors: ['blue'], confirm: '' });
+
+      wrapper.find('.next').simulate('click');
+    }, 10)
+    .delay(() => {
+      wrapper.find('.complete').simulate('click');
+      expect(wrapper.state('completed')).to.equal(true);
+      expect(wrapper.state('values')).to.deep.equal({fork: 'colors', colors: ['blue'], confirm: '' });
+
+      expect(onComplete).to.be.calledOnce;
+      expect(onComplete.calledWith({ fork: 'colors', colors: ['blue'] })).to.equal(true);
+
+      done();
+    }, 10)
+    .catch((err) => { 
+      done(err);
+    });
+  });
+});
+
+describe('wizard using promiseOnNext', function() {
+  it('should complete successfully', function(done) {
+    const onComplete = sinon.spy(logComplete);
+    const wrapper = mount(WizardExample5({ onComplete }));
 
     expect(wrapper.state('errors').singlestep).to.not.exist;
     wrapper.find('.complete').simulate('click');

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, Route, Link } from 'react-router-dom';
 
-import { WizardExample1, WizardExample2, WizardExample3, WizardExample4 } from './examples';
+import { WizardExample1, WizardExample2, WizardExample3, WizardExample4, WizardExample5 } from './examples';
 
 const examples = [
   {
@@ -28,9 +28,16 @@ const examples = [
   {
     path: '/example-4',
     title: 'Example 4', 
-    description: 'An example that shows the flexibility of using the provided next onClick handler returned Promise. The wizard completes if the wizard item validates successfully in a single step with no further user interaction.', 
+    description: 'Same as example 3 but starting in step 2', 
     component: WizardExample4, 
     url: 'https://github.com/DAIAD/react-wizard/tree/master/example/src/examples/wizard4.jsx' 
+  },
+  {
+    path: '/example-5',
+    title: 'Example 5', 
+    description: 'An example that shows the flexibility of using the provided next onClick handler returned Promise. The wizard completes if the wizard item validates successfully in a single step with no further user interaction.', 
+    component: WizardExample5, 
+    url: 'https://github.com/DAIAD/react-wizard/tree/master/example/src/examples/wizard5.jsx' 
   }
 ];
 

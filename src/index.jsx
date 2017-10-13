@@ -62,10 +62,13 @@ const createWizard = (WizardItemWrapper=null) => {
 
     //helper get functions
     _getInitialState() {
+      const first = this.wizardItems[0].props.id;
+      const values = this._getInitialValues();
+
       return {
-        active: this.wizardItems[0].props.id,
-        cleared: [],
-        values: this._getInitialValues(),
+        active: this.props.initialActive || first,
+        cleared: this.props.initialActive && this._getPath(first, this.props.initialActive, values) || [],
+        values,
         completed: false,
         errors: {}
       };
@@ -95,18 +98,28 @@ const createWizard = (WizardItemWrapper=null) => {
       return this.wizardItems.findIndex(it => it.props.id === id);
     }
 
-    _getSteps() {
-      const following = [];
-      let current = this.state.active;
-      let step = this._getWizardItem(current);
-      while(current !== 'complete' && step && step.props) {
-        following.push(current);
-        step = this._getWizardItem(current);
-        current = step.props.next(this.state.values[current]);
-      }
-      const cleared = this.state.cleared;
-      const path = [...cleared, ...following.filter(x => !cleared.includes(x))];
+    _getPath(from, to, values) {
+      if (!to || !(to in {...values, complete: null })) { 
+        throw `No path to '${to}'. Check initialActive prop`;
+      };
+      const path = [];
 
+      let current = from;
+      let step = this._getWizardItem(current);
+
+      while(current !== to) {
+        path.push(current);
+        step = this._getWizardItem(current);
+        if (!step || !step.props) {
+          throw `No path to '${to}'. Check initialActive prop and initialValues`;
+        }
+        current = step.props.next(values[current]);
+      }
+      return path;
+    }
+
+    _getSteps() {
+      const path = this._getPath(this.wizardItems[0].props.id, 'complete', this.state.values);
       return path.map((id, idx) => ({
         id: id,
         index: idx,

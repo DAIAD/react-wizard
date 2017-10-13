@@ -18,6 +18,7 @@ The wizard accepts the following options
 | onComplete | func | onComplete callback function to execute |
 | promiseOnNext | bool | option to return promise in onNextClicked function |
 | validateLive | bool | option to validate on user-input, otherwise only on next |
+| initialActive | string | pass step id to start from step other than first. Note that a valid path to step id given initialValues must exist. |
 | childrenProps | object | object that is passed as props to all children |
 | children | oneOfType([<br>arrayOf(element), <br> object]).isRequired | wizard step components |
 
