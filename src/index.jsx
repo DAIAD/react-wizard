@@ -77,7 +77,16 @@ const createWizard = (WizardItemWrapper=null) => {
     _getInitialValues() {
       return this.wizardItems.reduce((p, c) => {
         const d = {...p};
-        d[c.props.id] = c.props.initialValue; 
+        const initialValue = c.props.initialValue != null ? 
+          c.props.initialValue 
+            : (this.props.initialValues && this.props.initialValues[c.props.id]); 
+
+        if (initialValue == null) {
+          throw new Error(`Wizard: No initialValue set for ${c.props.id}.` + 
+                          `You can either provide initialValue as step prop or all initialValues as Wizard Component prop`);
+        }
+
+        d[c.props.id] = initialValue;
         return d;
       }, {});
     }
@@ -302,13 +311,16 @@ const createWizard = (WizardItemWrapper=null) => {
   Wizard.defaultProps = {
     promiseOnNext: false,
     validateLive: false,
-    childrenProps: {}
+    childrenProps: {},
+    initialValues: {},
   };
 
   Wizard.propTypes = {
     onComplete: React.PropTypes.func, //onComplete callback function to execute
     promiseOnNext: React.PropTypes.bool, //option to return promise in onNextClicked function
     validateLive: React.PropTypes.bool, //option to validate on user-input, otherwise only on next
+    initialActive: React.PropTypes.string, // pass step id to start from step other than first. 
+    initialValues: React.PropTypes.object, // alternative way to pass initialValues for children
     childrenProps: React.PropTypes.object, //pass extra properties to all children
     children: React.PropTypes.oneOfType([
       React.PropTypes.arrayOf(React.PropTypes.element), 
@@ -376,7 +388,7 @@ const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
     id: React.PropTypes.string.isRequired, // id is required
     title: React.PropTypes.string,
     description: React.PropTypes.string,
-    initialValue: React.PropTypes.any.isRequired, //initialValue required to define return value expected type
+    initialValue: React.PropTypes.any, //initialValue defines return value expected type
     validate: React.PropTypes.func, // ex. value => !value ? throw 'Error' : null
     next: React.PropTypes.func, // ex. value => value == 1 ? 'id1' : 'id2'
   };

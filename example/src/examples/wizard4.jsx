@@ -55,7 +55,7 @@ export function WizardExample4 (props) {
       initialActive='colors'
       initialValues={{
         fork: 'colors',
-        colors: ['blue'],
+        colors: ['red', 'green'],
         confirm: '',
       }}
       {...props}
@@ -68,7 +68,6 @@ export function WizardExample4 (props) {
             if (!value) 
               throw 'You must select one'; 
           }}
-          initialValue='colors'
           next={value => value === 'finish' ? 'confirm' : 'colors'}
         />
         <SelectColors
@@ -82,7 +81,6 @@ export function WizardExample4 (props) {
           id='confirm'
           title='Confirmation'
           description='Please confirm'
-          initialValue=''
         />
       </Wizard>
   );
