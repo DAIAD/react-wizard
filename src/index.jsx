@@ -99,7 +99,7 @@ const createWizard = (WizardItemWrapper=null) => {
       const following = [];
       let current = this.state.active;
       let step = this._getWizardItem(current);
-      while(current !== 'complete' || !step || !step.props) {
+      while(current !== 'complete' && step && step.props) {
         following.push(current);
         step = this._getWizardItem(current);
         current = step.props.next(this.state.values[current]);
