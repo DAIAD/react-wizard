@@ -212,13 +212,13 @@ const createWizard = (WizardItemWrapper=null) => {
 
       this.setState({ active: id });
     }
-
+    
     //handle event functions
-		_validate(id, value) {
+    _validate(id, value) {
       const item = this._getWizardItem(id);
       const { validate } = item.props;
       return Promise.resolve()
-      .then(() => validate(value))
+      .then(() => validate(value, this._getClearedValues()))
       .then(() => { this._setValidationClear(id); return value; })
       .catch((err) => { this._setValidationFail(id, err); throw err; });
     }
