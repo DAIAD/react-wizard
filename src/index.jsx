@@ -1,5 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import shallowCompare from 'react-addons-shallow-compare';
+
 
 import { filterObjByKeys } from './utils';
 
@@ -316,15 +318,15 @@ const createWizard = (WizardItemWrapper=null) => {
   };
 
   Wizard.propTypes = {
-    onComplete: React.PropTypes.func, //onComplete callback function to execute
-    promiseOnNext: React.PropTypes.bool, //option to return promise in onNextClicked function
-    validateLive: React.PropTypes.bool, //option to validate on user-input, otherwise only on next
-    initialActive: React.PropTypes.string, // pass step id to start from step other than first. 
-    initialValues: React.PropTypes.object, // alternative way to pass initialValues for children
-    childrenProps: React.PropTypes.object, //pass extra properties to all children
-    children: React.PropTypes.oneOfType([
-      React.PropTypes.arrayOf(React.PropTypes.element), 
-      React.PropTypes.object
+    onComplete: PropTypes.func, //onComplete callback function to execute
+    promiseOnNext: PropTypes.bool, //option to return promise in onNextClicked function
+    validateLive: PropTypes.bool, //option to validate on user-input, otherwise only on next
+    initialActive: PropTypes.string, // pass step id to start from step other than first. 
+    initialValues: PropTypes.object, // alternative way to pass initialValues for children
+    childrenProps: PropTypes.object, //pass extra properties to all children
+    children: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.element), 
+      PropTypes.object
     ]).isRequired
   };
 
@@ -385,12 +387,12 @@ const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
   };
   
   WizardItem.propTypes = {
-    id: React.PropTypes.string.isRequired, // id is required
-    title: React.PropTypes.string,
-    description: React.PropTypes.string,
-    initialValue: React.PropTypes.any, //initialValue defines return value expected type
-    validate: React.PropTypes.func, // ex. value => !value ? throw 'Error' : null
-    next: React.PropTypes.func, // ex. value => value == 1 ? 'id1' : 'id2'
+    id: PropTypes.string.isRequired, // id is required
+    title: PropTypes.string,
+    description: PropTypes.string,
+    initialValue: PropTypes.any, //initialValue defines return value expected type
+    validate: PropTypes.func, // ex. value => !value ? throw 'Error' : null
+    next: PropTypes.func, // ex. value => value == 1 ? 'id1' : 'id2'
   };
 
   return WizardItem;
@@ -398,20 +400,20 @@ const createWizardItem = (WizardItemInner, WizardItemWrapper) => {
 
 //provided to render wrapper (if provided) and each component 
 const renderPropTypes = {
-  onNextClicked: React.PropTypes.func, //next click handler
-  onPreviousClicked: React.PropTypes.func, //previous clicked handler
-  onComplete: React.PropTypes.func, //on complete handler with values object, ex. values => handleValues(values)
-  reset: React.PropTypes.func, //reset handler
-  setValue: React.PropTypes.func, //the callback function to set the wizard item value, ex. () => setValue('check'), or setValue([1,2,3]), or setValue({a:1, b:2})
-  value: React.PropTypes.any, //the value set by setValue (initially initialValue)
-  values: React.PropTypes.object, //the cleared wizard values as a dict with wizard items ids as keys, ex. {'step1': 'check', 'step2': [1,2,3]}, 
-  errors: React.PropTypes.string, //any validation errors
-  completed: React.PropTypes.bool, //wizard completed
-  step: React.PropTypes.number, // the wizard step based on how many next clicked
-  isActive: React.PropTypes.bool, //is wizard item active (by default only active is displayed)
-  isLast: React.PropTypes.bool, //is last wizard item
-  hasNext: React.PropTypes.bool, //wizard item has next
-  hasPrevious: React.PropTypes.bool, //wizard item has previous
+  onNextClicked: PropTypes.func, //next click handler
+  onPreviousClicked: PropTypes.func, //previous clicked handler
+  onComplete: PropTypes.func, //on complete handler with values object, ex. values => handleValues(values)
+  reset: PropTypes.func, //reset handler
+  setValue: PropTypes.func, //the callback function to set the wizard item value, ex. () => setValue('check'), or setValue([1,2,3]), or setValue({a:1, b:2})
+  value: PropTypes.any, //the value set by setValue (initially initialValue)
+  values: PropTypes.object, //the cleared wizard values as a dict with wizard items ids as keys, ex. {'step1': 'check', 'step2': [1,2,3]}, 
+  errors: PropTypes.string, //any validation errors
+  completed: PropTypes.bool, //wizard completed
+  step: PropTypes.number, // the wizard step based on how many next clicked
+  isActive: PropTypes.bool, //is wizard item active (by default only active is displayed)
+  isLast: PropTypes.bool, //is last wizard item
+  hasNext: PropTypes.bool, //wizard item has next
+  hasPrevious: PropTypes.bool, //wizard item has previous
 };
 
 
